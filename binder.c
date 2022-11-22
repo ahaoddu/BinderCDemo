@@ -1,7 +1,7 @@
 /* Copyright 2008 The Android Open Source Project
  */
 
-#define LOG_TAG "Binder"
+#define LOG_TAG "MyBinder"
 
 #include <errno.h>
 #include <fcntl.h>
@@ -11,14 +11,14 @@
 #include <string.h>
 #include <sys/mman.h>
 #include <unistd.h>
-
 #include <log/log.h>
-
 #include "binder.h"
 
 #define MAX_BIO_SIZE (1 << 30)
 
 #define TRACE 0
+
+
 
 void bio_init_from_txn(struct binder_io *io, struct binder_transaction_data *txn);
 
@@ -226,14 +226,22 @@ void binder_send_reply(struct binder_state *bs,
     binder_write(bs, &data, sizeof(data));
 }
 
-int binder_parse(struct binder_state *bs, struct binder_io *bio,
+int  binder_parse(struct binder_state *bs, struct binder_io *bio,
                  uintptr_t ptr, size_t size, binder_handler func)
 {
     int r = 1;
     uintptr_t end = ptr + (uintptr_t) size;
 
+    // ALOGI("服务端 BR_TRANSACTION = %d", BR_TRANSACTION);
+    // ALOGI("服务端 BR_REPLY = %d", BR_REPLY);
+    // ALOGI("服务端 BR_NOOP = %d", BR_NOOP);
+    // ALOGI("服务端 BR_REPLY = %d", BR_REPLY);
+    // ALOGI("服务端 BR_REPLY = %d", BR_REPLY);
+    // ALOGI("服务端 BR_REPLY = %d", BR_REPLY);
+
+
     while (ptr < end) {
-        uint32_t cmd = *(uint32_t *) ptr;
+        uint32_t cmd = *((uint32_t *) ptr);
         ptr += sizeof(uint32_t);
 #if TRACE
         fprintf(stderr,"%s:\n", cmd_name(cmd));
@@ -321,7 +329,6 @@ int binder_parse(struct binder_state *bs, struct binder_io *bio,
             r = -1;
             break;
         default:
-            ALOGE("parse: OOPS %d\n", cmd);
             return -1;
         }
     }
@@ -399,12 +406,17 @@ int binder_call(struct binder_state *bs,
         if (res < 0) {
             fprintf(stderr,"binder: ioctl failed (%s)\n", strerror(errno));
             goto fail;
-        }
+        } 
 
+        
         res = binder_parse(bs, reply, (uintptr_t) readbuf, bwr.read_consumed, 0);
-        if (res == 0) return 0;
-        if (res < 0) goto fail;
-    }
+        if (res == 0) {
+            return 0;
+        }
+        if (res < 0) {
+            goto fail;
+        }
+        }
 
 fail:
     memset(reply, 0, sizeof(*reply));
@@ -412,12 +424,16 @@ fail:
     return -1;
 }
 
+void binder_set_maxthreads(struct binder_state *bs, int threads)
+{
+	ioctl(bs->fd, BINDER_SET_MAX_THREADS, &threads);
+}
+
 void binder_loop(struct binder_state *bs, binder_handler func)
 {
     int res;
     struct binder_write_read bwr;
     uint32_t readbuf[32];
-
     bwr.write_size = 0;
     bwr.write_consumed = 0;
     bwr.write_buffer = 0;
@@ -436,7 +452,7 @@ void binder_loop(struct binder_state *bs, binder_handler func)
             ALOGE("binder_loop: ioctl failed (%s)\n", strerror(errno));
             break;
         }
-
+       
         res = binder_parse(bs, 0, (uintptr_t) readbuf, bwr.read_consumed, func);
         if (res == 0) {
             ALOGE("binder_loop: unexpected reply?!\n");
@@ -682,6 +698,7 @@ uint32_t bio_get_ref(struct binder_io *bio)
 }
 
 
+
 int svcmgr_publish(struct binder_state *bs, uint32_t target, const char *name, void *ptr)
 {
     int status;
@@ -698,7 +715,7 @@ int svcmgr_publish(struct binder_state *bs, uint32_t target, const char *name, v
     bio_put_uint32(&msg, 0);
 
     if (binder_call(bs, &msg, &reply, target, SVC_MGR_ADD_SERVICE)) {
-        //fprintf(stderr, "svcmgr_public 远程调用失败\n");
+        fprintf(stderr, "svcmgr_public 远程调用失败\n");
         return -1;
     }
    

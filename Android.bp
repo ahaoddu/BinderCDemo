@@ -25,8 +25,9 @@ cc_defaults {
 cc_binary {
     name: "binderclient",
     defaults: ["bindertestflags"],
+    vendor: true, 
     srcs: [
-        "client.cpp",
+        "binder_client.c",
         "binder.c",
     ],
 }
@@ -34,9 +35,20 @@ cc_binary {
 cc_binary {
     name: "binderserver",
     defaults: ["bindertestflags"],
+    vendor: true, 
     srcs: [
-        "server.cpp",
+        "binder_server.c",
         "binder.c",
     ],
 }
+
+// cc_binary {
+//     name: "myservicemanager",
+//     defaults: ["mybindertest_flags"],
+//     srcs: [
+//         "service_manager.c",
+//         "binder.c",
+//     ],
+//     shared_libs: ["libcutils", "libselinux"],
+// }
 

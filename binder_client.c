@@ -4,13 +4,7 @@
 #include <linux/types.h>
 #include <stdbool.h>
 #include <string.h>
-
-#include <private/android_filesystem_config.h>
-
 #include "binder.h"
-
-#define LOG_TAG "BinderClient"
-#include <log/log.h>
 
 #define HELLO_SVR_CMD_SAYHELLO     1
 #define HELLO_SVR_CMD_SAYHELLO_TO  2
@@ -58,11 +52,8 @@ int main(int argc, char **argv)
 	/* get service */
 	g_handle = svcmgr_lookup(bs, svcmgr, "hello");
 	if (!g_handle) {
-        ALOGW("binder client 查找服务 hello 失败");
         return -1;
-	} else {
-        ALOGW("binder client 查找服务成功 handle = %d", g_handle);
-    }
+	} 
 
     //调用服务
     sayhello();

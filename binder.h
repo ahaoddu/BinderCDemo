@@ -56,6 +56,8 @@ int binder_call(struct binder_state *bs,
                 struct binder_io *msg, struct binder_io *reply,
                 uint32_t target, uint32_t code);
 
+void binder_set_maxthreads(struct binder_state *bs, int threads);
+
 /* release any state associate with the binder_io
  * - call once any necessary data has been extracted from the
  *   binder_io after binder_call() returns

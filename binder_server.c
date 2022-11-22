@@ -5,8 +5,6 @@
 #include<stdbool.h>
 #include <string.h>
 
-#include <private/android_filesystem_config.h>
-
 #include "binder.h"
 
 #define LOG_TAG "BinderServer"
@@ -19,14 +17,16 @@
 void sayhello(void)
 {
 	static int cnt = 0;
-	fprintf(stderr, "say hello : %d\n", ++cnt);
+	//fprintf(stderr, "say hello : %d\n", ++cnt);
+    ALOGW("say hello : %d\n", ++cnt);
 }
 
 
 int sayhello_to(char *name)
 {
 	static int cnt = 0;
-	fprintf(stderr, "say hello to %s : %d\n", name, ++cnt);
+	//fprintf(stderr, "say hello to %s : %d\n", name, ++cnt);
+    ALOGW("say hello to %s : %d\n", name, ++cnt);
 	return cnt;
 }
 
@@ -123,6 +123,7 @@ int main(int argc, char **argv)
     uint32_t svcmgr = BINDER_SERVICE_MANAGER;
     uint32_t handle;
 	int ret;
+
     
     //打开驱动
     bs = binder_open("/dev/binder", 128*1024);
@@ -136,8 +137,9 @@ int main(int argc, char **argv)
     if (ret) {
         fprintf(stderr, "failed to publish hello service\n");
         return -1;
-    } 
+    }
     
     binder_loop(bs, test_server_handler);
+
     return 0;
 }
